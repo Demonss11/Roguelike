@@ -19,6 +19,20 @@ class struc_Title:
     def __init__(self, block_path):
         self.block_path = block_path
 
+class obj_Actor:
+    def __init__(self, x, y, sprite):
+        self.x = x
+        self.y = y
+        self.sprite = sprite
+
+    def draw(self):
+        SURFACE_MAIN.blit(self.sprite, (self.x * constants.CELL_WIDTH, self.y *  constants.CELL_HEIGHT))
+
+    def move(self, dx, dy):
+        if GAME_MAP[self.x + dx][self.y + dy].block_path == False:
+            self.x += dx
+            self.y += dy
+
 
 def map_create():
     new_map = [[struc_Title(False) for y in range(0,constants.MAP_WIDTH)] for x in range(0,constants.MAP_HEIGHT)]
@@ -41,7 +55,7 @@ def draw_game():
     draw_map(GAME_MAP)
 
     #draw the character
-    SURFACE_MAIN.blit(constants.S_PLAYER, ( 200, 200 ))
+    PLAYER.draw()
 
     #update the display
     pygame.display.flip()
@@ -71,6 +85,15 @@ def game_main_loop():
         for event in events_list:
             if event.type == pygame.QUIT:
                 game_quit = True
+            if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_UP:
+                    PLAYER.move(0,-1)
+                if event.key == pygame.K_DOWN:
+                    PLAYER.move(0,1)
+                if event.key == pygame.K_LEFT:
+                    PLAYER.move(-1,0)
+                if event.key == pygame.K_RIGHT:
+                    PLAYER.move(1,0)
 
         #draw the game
         draw_game()
@@ -88,7 +111,7 @@ def game_main_loop():
 def game_initialize():
     '''This function initializes the main window, and pygame'''
 
-    global SURFACE_MAIN, GAME_MAP
+    global SURFACE_MAIN, GAME_MAP, PLAYER
 
     #initialize pygame
     pygame.init()
@@ -97,7 +120,7 @@ def game_initialize():
 
     GAME_MAP = map_create()
 
-
+    PLAYER = obj_Actor(0,0, constants.S_PLAYER)
 
 
 
