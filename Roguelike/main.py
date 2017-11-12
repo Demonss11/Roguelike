@@ -41,7 +41,23 @@ class obj_Actor:
         SURFACE_MAIN.blit(self.sprite, (self.x * constants.CELL_WIDTH, self.y *  constants.CELL_HEIGHT))
 
     def move(self, dx, dy):
-        if GAME_MAP[self.x + dx][self.y + dy].block_path == False:
+        tile_is_wall = (GAME_MAP[self.x + dx][self.y + dy].block_path == True)
+
+        target = None
+
+        for object in GAME_OBJECTS:
+            if (object is not self and 
+                object.x == self.x + dx and 
+                object.y == self.y + dy and 
+                object.creature):
+                target = object
+                break
+
+
+        if target:
+            print self.creature.name_instance + " attacks " + target.creature.name_instance
+
+        if not tile_is_wall and target is None:
             self.x += dx
             self.y += dy
 
@@ -73,7 +89,7 @@ class com_Creature:
              
 class ai_Test:
     def take_turn(self):
-        self.owner.move(-1,0)
+        self.owner.move(libtcod.random_get_int(0,-1,1),libtcod.random_get_int(0,-1,1))
 
 # .___  ___.      ___      .______   
 # |   \/   |     /   \     |   _  \  
@@ -86,6 +102,13 @@ def map_create():
     new_map = [[struc_Title(False) for y in range(0,constants.MAP_WIDTH)] for x in range(0,constants.MAP_HEIGHT)]
     new_map[10][10].block_path = True
     new_map[10][15].block_path = True
+
+    for x in range(constants.MAP_WIDTH):
+        new_map[x][0].block_path = True
+        new_map[x][constants.MAP_HEIGHT-1].block_path = True
+    for y in range(constants.MAP_WIDTH):
+        new_map[0][y].block_path = True
+        new_map[constants.MAP_WIDTH-1][y].block_path = True
 
     return new_map
 
@@ -171,17 +194,17 @@ def game_initialize():
     #initialize pygame
     pygame.init()
 
-    SURFACE_MAIN = pygame.display.set_mode( (constants.GAME_WIDTH, constants.GAME_HEIGHT) )
+    SURFACE_MAIN = pygame.display.set_mode( (constants.MAP_WIDTH * constants.CELL_WIDTH, constants.MAP_HEIGHT * constants.CELL_HEIGHT) )
 
     GAME_MAP = map_create()
 
     creature_com1 = com_Creature("greg")
     #item_com = com_Item()
-    PLAYER = obj_Actor(0,0, "python", constants.S_PLAYER, creature = creature_com1)
+    PLAYER = obj_Actor(1,1, "python", constants.S_PLAYER, creature = creature_com1)
 
     creature_com2 = com_Creature("jackie")
     ai_com = ai_Test()
-    ENEMY = obj_Actor(15,15, "crab", constants.S_ENEMY, ai = ai_com)
+    ENEMY = obj_Actor(15,15, "crab", constants.S_ENEMY, creature = creature_com2, ai = ai_com)
 
     GAME_OBJECTS = [PLAYER, ENEMY]
 
