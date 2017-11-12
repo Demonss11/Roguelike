@@ -5,29 +5,37 @@ import pygame
 #game files
 import constants
 
-"""
-  _______      ___      .___  ___.  _______ 
- /  _____|    /   \     |   \/   | |   ____|
-|  |  __     /  ^  \    |  \  /  | |  |__   
-|  | |_ |   /  /_\  \   |  |\/|  | |   __|  
-|  |__| |  /  _____  \  |  |  |  | |  |____ 
- \______| /__/     \__\ |__|  |__| |_______|
-                                            
-"""
+#      _______.___________..______       __    __    ______ .___________.
+#     /       |           ||   _  \     |  |  |  |  /      ||           |
+#    |   (----`---|  |----`|  |_)  |    |  |  |  | |  ,----'`---|  |----`
+#     \   \       |  |     |      /     |  |  |  | |  |         |  |     
+# .----)   |      |  |     |  |\  \----.|  `--'  | |  `----.    |  |     
+# |_______/       |__|     | _| `._____| \______/   \______|    |__|  
 
 class struc_Title:
     def __init__(self, block_path):
         self.block_path = block_path
 
+#   ______   .______          __   _______   ______ .___________.    _______.
+#  /  __  \  |   _  \        |  | |   ____| /      ||           |   /       |
+# |  |  |  | |  |_)  |       |  | |  |__   |  ,----'`---|  |----`  |   (----`
+# |  |  |  | |   _  <  .--.  |  | |   __|  |  |         |  |        \   \    
+# |  `--'  | |  |_)  | |  `--'  | |  |____ |  `----.    |  |    .----)   |   
+#  \______/  |______/   \______/  |_______| \______|    |__|    |_______/  
+
+
 class obj_Actor:
-    def __init__(self, x, y, name_object, sprite, creature = None):
+    def __init__(self, x, y, name_object, sprite, creature = None, ai = None):
         self.x = x
         self.y = y
         self.sprite = sprite
-
+        self.creature = creature
         if creature:
-            self.creature = creature
             creature.owner = self
+
+        self.ai = ai
+        if ai:
+            ai.owner = self
 
     def draw(self):
         SURFACE_MAIN.blit(self.sprite, (self.x * constants.CELL_WIDTH, self.y *  constants.CELL_HEIGHT))
@@ -36,6 +44,12 @@ class obj_Actor:
         if GAME_MAP[self.x + dx][self.y + dy].block_path == False:
             self.x += dx
             self.y += dy
+
+#   ____ ___  __  __ ____   ___  _   _ _____ _   _ _____ ____  
+#  / ___/ _ \|  \/  |  _ \ / _ \| \ | | ____| \ | |_   _/ ___| 
+# | |  | | | | |\/| | |_) | | | |  \| |  _| |  \| | | | \___ \ 
+# | |__| |_| | |  | |  __/| |_| | |\  | |___| |\  | | |  ___) |
+#  \____\___/|_|  |_|_|    \___/|_| \_|_____|_| \_| |_| |____/ 
 
 #игровые компоненты
 class com_Creature:
@@ -46,11 +60,27 @@ class com_Creature:
 
 
 
-class com_Item:
-    pass
-class com_Container:
-    pass
+#class com_Item:
+#    pass
+#class com_Container:
+#    pass
 
+#    _    ___ 
+#    / \  |_ _|
+#   / _ \  | | 
+#  / ___ \ | | 
+# /_/   \_\___|
+             
+class ai_Test:
+    def take_turn(self):
+        self.owner.move(-1,0)
+
+# .___  ___.      ___      .______   
+# |   \/   |     /   \     |   _  \  
+# |  \  /  |    /  ^  \    |  |_)  | 
+# |  |\/|  |   /  /_\  \   |   ___/  
+# |  |  |  |  /  _____  \  |  |      
+# |__|  |__| /__/     \__\ | _| 
 
 def map_create():
     new_map = [[struc_Title(False) for y in range(0,constants.MAP_WIDTH)] for x in range(0,constants.MAP_HEIGHT)]
@@ -59,7 +89,12 @@ def map_create():
 
     return new_map
 
-
+#  _______  .______          ___   ____    __    ____  __  .__   __.   _______ 
+# |       \ |   _  \        /   \  \   \  /  \  /   / |  | |  \ |  |  /  _____|
+# |  .--.  ||  |_)  |      /  ^  \  \   \/    \/   /  |  | |   \|  | |  |  __  
+# |  |  |  ||      /      /  /_\  \  \            /   |  | |  . `  | |  | |_ | 
+# |  '--'  ||  |\  \----./  _____  \  \    /\    /    |  | |  |\   | |  |__| | 
+# |_______/ | _| `._____/__/     \__\  \__/  \__/     |__| |__| \__|  \______| 
 
 
 def draw_game():
@@ -72,9 +107,9 @@ def draw_game():
     #TODO draw the map
     draw_map(GAME_MAP)
 
-    #draw the character
-    ENEMY.draw()
-    PLAYER.draw()
+    #draw the character Клевое решение
+    for obj in GAME_OBJECTS:
+        obj.draw()
 
 
     #update the display
@@ -90,30 +125,30 @@ def draw_map(map_to_draw):
 
 
 
-
+#   _______      ___      .___  ___.  _______ 
+#  /  _____|    /   \     |   \/   | |   ____|
+# |  |  __     /  ^  \    |  \  /  | |  |__   
+# |  | |_ |   /  /_\  \   |  |\/|  | |   __|  
+# |  |__| |  /  _____  \  |  |  |  | |  |____ 
+#  \______| /__/     \__\ |__|  |__| |_______|
 
 def game_main_loop():
     '''In this funciton, we loop the main game'''
     game_quit = False
+    
+    player_action = "no-action"
 
     while not game_quit:
         
-        #get player input
-        events_list = pygame.event.get()
+        #Управление игроком
+        player_action = game_handle_keys()
 
-        #TODO process input
-        for event in events_list:
-            if event.type == pygame.QUIT:
-                game_quit = True
-            if event.type == pygame.KEYDOWN:
-                if event.key == pygame.K_UP:
-                    PLAYER.move(0,-1)
-                if event.key == pygame.K_DOWN:
-                    PLAYER.move(0,1)
-                if event.key == pygame.K_LEFT:
-                    PLAYER.move(-1,0)
-                if event.key == pygame.K_RIGHT:
-                    PLAYER.move(1,0)
+        if player_action == "QUIT":
+            game_quit = True
+        if player_action != "no-action":
+            for obj in GAME_OBJECTS:
+                if obj.ai:
+                    obj.ai.take_turn()
 
         #draw the game
         draw_game()
@@ -131,7 +166,7 @@ def game_main_loop():
 def game_initialize():
     '''This function initializes the main window, and pygame'''
 
-    global SURFACE_MAIN, GAME_MAP, PLAYER, ENEMY
+    global SURFACE_MAIN, GAME_MAP, PLAYER, ENEMY, GAME_OBJECTS
 
     #initialize pygame
     pygame.init()
@@ -140,14 +175,62 @@ def game_initialize():
 
     GAME_MAP = map_create()
 
-    #creature_com1 = com_Creature("greg")
-    PLAYER = obj_Actor(0,0, "python", constants.S_PLAYER, creature_com1)
+    creature_com1 = com_Creature("greg")
+    #item_com = com_Item()
+    PLAYER = obj_Actor(0,0, "python", constants.S_PLAYER, creature = creature_com1)
+
     creature_com2 = com_Creature("jackie")
-    ENEMY = obj_Actor(10,15, "crab", constants.S_ENEMY, creature_com2)
+    ai_com = ai_Test()
+    ENEMY = obj_Actor(15,15, "crab", constants.S_ENEMY, ai = ai_com)
+
+    GAME_OBJECTS = [PLAYER, ENEMY]
 
 
+def game_handle_keys():
+        #get player input
+        events_list = pygame.event.get()
 
+        #TODO process input
+        for event in events_list:
+            if event.type == pygame.QUIT:
+                return "QUIT"
+            if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_UP:
+                    PLAYER.move(0,-1)
+                    return "player-moved"
+                if event.key == pygame.K_DOWN:
+                    PLAYER.move(0,1)
+                    return "player-moved"
+                if event.key == pygame.K_LEFT:
+                    PLAYER.move(-1,0)
+                    return "player-moved"
+                if event.key == pygame.K_RIGHT:
+                    PLAYER.move(1,0)
+                    return "player-moved"
 
+        return "no-action"
+
+############################################################# 
+###################################################   ####### 
+###############################################   /~\   #####
+############################################   _- `~~~', ####
+##########################################  _-~       )  ####
+#######################################  _-~          |  ####
+####################################  _-~            ;  #####
+##########################  __---___-~              |   #####
+#######################   _~   ,,                  ;  `,,  ##
+#####################  _-~    ;'                  |  ,'  ; ##
+###################  _~      '                    `~'   ; ###
+############   __---;                                 ,' ####
+########   __~~  ___                                ,' ######
+#####  _-~~   -~~ _                               ,' ########
+##### `-_         _                              ; ##########
+#######  ~~----~~~   ;                          ; ###########
+#########  /          ;                        ; ############
+#######  /             ;                      ; #############
+#####  /                `                    ; ##############
+###  /                                      ; ###############
+#                                            ################
 if __name__ == '__main__':
     game_initialize()
     game_main_loop()
